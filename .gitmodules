@@ -1,0 +1,12 @@
+[submodule "external/pico-sdk"]
+	path = external/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk
+[submodule "external/wiznet/ioLibrary_Driver"]
+	path = external/wiznet/ioLibrary_Driver
+	url = https://github.com/Wiznet/ioLibrary_Driver
+[submodule "external/ioLibrary_Driver"]
+	path = external/ioLibrary_Driver
+	url = https://github.com/Wiznet/ioLibrary_Driver
+[submodule "external/pico-extras"]
+	path = external/pico-extras
+	url = https://github.com/raspberrypi/pico-extras
