@@ -3,11 +3,10 @@ W5100S-EVB-Pico 보드를 이용하여 Ethernet to CAN 게이트웨이 기능을
 
 # Visual Studio Code 환경 변수 추가
 ```
-    "terminal.integrated.env.windows": {
-        "PATH": "${env:PATH};D:/tools/build_tools/xpack-windows-build-tools-4.2.1-2/bin;C:/fw/tools/xpack-arm-none-eabi-gcc-10.2.1-1.1/bin;D:/tools/mingw32/bin",
-        "PICO_SDK_PATH": "d:/pico/pico-sdk",
-        "PICOSYSTEM_DIR": "d:/pico/picosystem"
-      },
+		"terminal.integrated.env.windows": {
+			"PATH": "${env:PATH};D:/tools/build_tools/xpack-windows-build-tools-4.2.1-2/bin;C:/fw/tools/xpack-arm-none-eabi-gcc-10.2.1-1.1/bin;D:/tools/mingw32/bin",
+			"PICO_SDK_PATH": "${workspaceFolder}/external/pico-sdk",
+		},
 ```      
 
 # CMake Configure
