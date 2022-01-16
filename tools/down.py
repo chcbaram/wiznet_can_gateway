@@ -4,9 +4,12 @@ import time
 import serial
 
 
-com_port  = "COM50"
+com_port  = sys.argv[1]
 file_name = "../build/src/ethernet_can_gateway"
 
+if len(sys.argv) != 2:
+    print("Insufficient arguments")
+    sys.exit()
 
 def open_port(port, baudrate=1200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=None, xonxoff=False, rtscts=False, dsrdtr=False):
     ser = serial.Serial()

@@ -47,7 +47,7 @@ cmake --build build -j4
 			{
 				"label": "uf2_down",
 				"type": "shell",
-				"command": "python down.py",
+				"command": "python ./tools/down.py COM50",
 			}
 		]
 	} 
