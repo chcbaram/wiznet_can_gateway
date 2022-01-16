@@ -17,6 +17,7 @@
 
 #include "hardware/clocks.h"
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 
 
 bool bspInit(void);

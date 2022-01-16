@@ -10,6 +10,7 @@
 
 #include "ap_def.h"
 
+#include "loopback_test.h"
 
 void apInit(void);
 void apMain(void);

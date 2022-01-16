@@ -138,7 +138,7 @@ uint16_t spiTransfer16(uint8_t ch, uint16_t data)
   {
     tBuf[1] = (uint8_t)data;
     tBuf[0] = (uint8_t)(data>>8);
-    //HAL_SPI_TransmitReceive(p_spi->h_spi, (uint8_t *)&tBuf, (uint8_t *)&rBuf, 2, 10);
+    spiTransfer(ch, &tBuf[0], &rBuf[0], 2, 10);
 
     ret = rBuf[0];
     ret <<= 8;
@@ -146,7 +146,7 @@ uint16_t spiTransfer16(uint8_t ch, uint16_t data)
   }
   else
   {
-    //HAL_SPI_TransmitReceive(p_spi->h_spi, (uint8_t *)&data, (uint8_t *)&ret, 1, 10);
+    spiTransfer(ch, (uint8_t *)&data, (uint8_t *)&ret, 2, 10);
   }
 
   return ret;

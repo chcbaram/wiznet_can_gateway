@@ -23,6 +23,7 @@ extern "C" {
 
 
 bool logInit(void);
+bool logOpen(uint8_t ch, uint32_t baud);
 void logEnable(void);
 void logDisable(void);
 void logBoot(uint8_t enable);

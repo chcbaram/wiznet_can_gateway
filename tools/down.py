@@ -4,8 +4,8 @@ import time
 import serial
 
 
-com_port  = "COM29"
-file_name = "./build/src/pico_exam"
+com_port  = "COM50"
+file_name = "../build/src/ethernet_can_gateway"
 
 
 def open_port(port, baudrate=1200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=None, xonxoff=False, rtscts=False, dsrdtr=False):
@@ -34,6 +34,7 @@ if __name__ == '__main__':
   open_port(com_port)
   print("reset pico")   
   time.sleep(0.5)
+  os.chdir("tools")
   os.system('rp2040load.exe' + " -v -D " + file_name)
 
 

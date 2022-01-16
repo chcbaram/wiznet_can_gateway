@@ -20,6 +20,7 @@ add_executable(
 
 target_include_directories(${PRJ_NAME} PUBLIC 
   ap
+  ap/include
   bsp
   common 
   common/core
@@ -31,10 +32,13 @@ target_link_libraries(${PRJ_NAME}
   pico_stdlib
   hardware_spi
   hardware_dma
+  pico_multicore
 
   ETHERNET_FILES
   SPI_FILES
   LOOPBACK_FILES 
+  HTTPSERVER_FILES
+  DHCP_FILES
   )
 
 pico_add_extra_outputs(${PRJ_NAME})
