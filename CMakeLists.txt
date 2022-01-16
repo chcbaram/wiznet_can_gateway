@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 set(PRJ_NAME ethernet_can_gateway)
 
-set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
+set(PICO_SDK_PATH "${CMAKE_SOURCE_DIR}/external/pico-sdk")
 set(WIZNET_DIR "${CMAKE_SOURCE_DIR}/external/ioLibrary_Driver")
 
 set(CMAKE_C_STANDARD 11)
