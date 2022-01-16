@@ -1,20 +1,21 @@
+
+file(GLOB SRC_FILES CONFIGURE_DEPENDS
+  *.cpp
+)
+
+file(GLOB_RECURSE SRC_FILES_RECURSE CONFIGURE_DEPENDS
+  ap/*.cpp
+  bsp/*.c
+  common/*.c
+  hw/*.c
+)
+
+
 add_executable(
   ${PRJ_NAME}
-  
-  main.cpp
 
-  ap/ap.cpp 
-  bsp/bsp.c
-  common/core/qbuffer.c
-  hw/hw.c
-  hw/driver/led.c
-  hw/driver/uart.c
-  hw/driver/cli.c
-  hw/driver/log.c
-  hw/driver/gpio.c
-  hw/driver/spi.c
-  hw/driver/mcp2515.c
-  hw/driver/can.c
+  ${SRC_FILES}
+  ${SRC_FILES_RECURSE}
 )
 
 target_include_directories(${PRJ_NAME} PUBLIC 
@@ -29,6 +30,11 @@ target_include_directories(${PRJ_NAME} PUBLIC
 target_link_libraries(${PRJ_NAME} 
   pico_stdlib
   hardware_spi
+  hardware_dma
+
+  ETHERNET_FILES
+  SPI_FILES
+  LOOPBACK_FILES 
   )
 
 pico_add_extra_outputs(${PRJ_NAME})
