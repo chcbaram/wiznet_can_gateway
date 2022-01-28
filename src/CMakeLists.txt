@@ -32,6 +32,7 @@ target_link_libraries(${PRJ_NAME}
   pico_stdlib
   hardware_spi
   hardware_dma
+  hardware_i2c
   pico_multicore
 
   ETHERNET_FILES
@@ -39,6 +40,8 @@ target_link_libraries(${PRJ_NAME}
   LOOPBACK_FILES 
   HTTPSERVER_FILES
   DHCP_FILES
+  DNS_FILES
+  TIMER_FILES
   )
 
 pico_add_extra_outputs(${PRJ_NAME})

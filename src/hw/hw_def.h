@@ -24,6 +24,9 @@
 #define _USE_HW_SPI
 #define      HW_SPI_MAX_CH          1
 
+#define _USE_HW_I2C
+#define      HW_I2C_MAX_CH          1
+
 #define _USE_HW_CLI
 #define      HW_CLI_CMD_LIST_MAX    16
 #define      HW_CLI_CMD_NAME_MAX    16
@@ -41,5 +44,11 @@
 #define _USE_HW_CAN
 #define      HW_CAN_MAX_CH          1
 #define      HW_CAN_MSG_RX_BUF_MAX  16
+
+#define _USE_HW_LCD
+#define _USE_HW_SSD1306
+#define      HW_LCD_WIDTH           128
+#define      HW_LCD_HEIGHT          32
+
 
 #endif /* SRC_HW_HW_DEF_H_ */

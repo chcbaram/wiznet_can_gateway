@@ -20,6 +20,7 @@ bool hwInit(void)
   ledInit();
   gpioInit();
   spiInit();
+  i2cInit();
   uartInit();
   uartOpen(_DEF_UART1, 57600);
   logOpen(_DEF_UART1, 57600);
@@ -35,6 +36,8 @@ bool hwInit(void)
   logPrintf("Clk timer\t\t: %d\r\n", clock_get_hz(clk_ref));
   
   canInit();
+  lcdInit();
+  lcdSetFps(20);
 
   logBoot(false);
 
