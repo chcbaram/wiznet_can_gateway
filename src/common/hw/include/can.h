@@ -32,7 +32,7 @@ typedef enum
   CAN_NORMAL,
   CAN_MONITOR,
   CAN_LOOPBACK
-}can_mode_t;
+} can_mode_t;
 
 typedef enum
 {
@@ -40,6 +40,13 @@ typedef enum
   CAN_FD_NO_BRS,
   CAN_FD_BRS
 } can_frame_t;
+
+typedef enum
+{
+  CAN_FRAME_TYPE_DATA,
+  CAN_FRAME_TYPE_ERROR,
+  CAN_FRAME_TYPE_REMOTE,
+} can_frame_type_t;
 
 typedef enum
 {
@@ -82,11 +89,13 @@ typedef struct
 {
   uint32_t id;
   uint16_t length;
-  uint8_t  data[64];
 
-  can_dlc_t      dlc;
-  can_id_type_t  id_type;
-  can_frame_t    frame;
+  uint8_t  id_type;       // can_id_type_t
+  uint8_t  dlc;           // can_dlc_t
+  uint8_t  frame;         // can_frame_t
+  uint8_t  frame_type;    // can_frame_type_t
+  
+  uint8_t  data[64];  
 } can_msg_t;
 
 
