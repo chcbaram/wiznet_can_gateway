@@ -25,6 +25,8 @@
 #include "i2c.h"
 #include "can.h"
 #include "lcd.h"
+#include "cmd_can.h"
+
 
 bool hwInit(void);
 
