@@ -25,6 +25,7 @@
 #include "i2c.h"
 #include "can.h"
 #include "lcd.h"
+#include "button.h"
 #include "cmd_can.h"
 
 

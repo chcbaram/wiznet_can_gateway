@@ -19,6 +19,7 @@ bool hwInit(void)
   logInit();
   ledInit();
   gpioInit();
+  buttonInit();
   spiInit();
   i2cInit();
   uartInit();
