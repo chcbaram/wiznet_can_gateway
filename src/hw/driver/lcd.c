@@ -184,7 +184,7 @@ void lcdSetBackLight(uint8_t value)
   }
 
 #ifdef _USE_HW_PWM
-  pwmWrite(0, map(value, 0, 100, 0, 255));
+  pwmWrite(0, CMAP(value, 0, 100, 0, 255));
 #else
   if (backlight_value > 0)
   {
@@ -368,9 +368,9 @@ LCD_OPT_DEF void lcdDrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 
 LCD_OPT_DEF void lcdDrawFillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint32_t color)
 {
-  uint16_t max_line_size_12 = max(abs(x1-x2), abs(y1-y2));
-  uint16_t max_line_size_13 = max(abs(x1-x3), abs(y1-y3));
-  uint16_t max_line_size_23 = max(abs(x2-x3), abs(y2-y3));
+  uint16_t max_line_size_12 = CMAX(abs(x1-x2), abs(y1-y2));
+  uint16_t max_line_size_13 = CMAX(abs(x1-x3), abs(y1-y3));
+  uint16_t max_line_size_23 = CMAX(abs(x2-x3), abs(y2-y3));
   uint16_t max_line_size = max_line_size_12;
   uint16_t i = 0;
 

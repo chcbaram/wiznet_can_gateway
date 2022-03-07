@@ -83,14 +83,14 @@
 
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
-#ifndef max
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
+#ifndef CMAX
+#define CMAX(a,b) (((a) > (b)) ? (a) : (b))
+#define CMIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
 
-#ifndef map
-#define map(value, in_min, in_max, out_min, out_max) ((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
+#ifndef CMAP
+#define CMAP(value, in_min, in_max, out_min, out_max) ((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 #endif
 
 
