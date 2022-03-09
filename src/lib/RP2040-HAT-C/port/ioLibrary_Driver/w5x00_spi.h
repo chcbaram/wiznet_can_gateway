@@ -7,6 +7,10 @@
 #ifndef _W5X00_SPI_H_
 #define _W5X00_SPI_H_
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /**
   * ----------------------------------------------------------------------------------------------------
   * Macros
@@ -22,7 +26,7 @@
 #define PIN_RST 20
 
 /* Use SPI DMA */
-//#define USE_SPI_DMA // if you want to use SPI DMA, uncomment.
+// #define USE_SPI_DMA // if you want to use SPI DMA, uncomment.
 
 /* Clock */
 #define PLL_SYS_KHZ (133 * 1000)
@@ -187,5 +191,9 @@ void print_network_information(wiz_NetInfo net_info);
  * \param none
  */
 void set_clock_khz(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _W5X00_SPI_H_ */
