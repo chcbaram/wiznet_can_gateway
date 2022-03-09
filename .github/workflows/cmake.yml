@@ -17,14 +17,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Git Submodules
+      run: |
+        git submodule update --init
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      run: cmake -S ${{github.workspace}}/. -B ${{github.workspace}}/build -DPICO_BOARD=${{env.PICO_BOARD}}
+      run: |
+        cmake -S ${{github.workspace}}/. -B ${{github.workspace}}/build -DPICO_BOARD=${{env.PICO_BOARD}}
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build -j2
+      run: |
+        cmake --build ${{github.workspace}}/build -j2
 
 #     - name: Test
 #       working-directory: ${{github.workspace}}/build
