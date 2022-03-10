@@ -45,7 +45,7 @@ void EventSocket::OnReadable() {
       getsockopt(fd, SO_RECVBUF, &len);
 
       if (len > 0) {
-        uint32_t remain = recvBuffer_.len - qbufferAvailable(&recvBuffer_);
+        uint32_t remain = (recvBuffer_.len - 1) - qbufferAvailable(&recvBuffer_);
         if (len > (uint16_t)remain) len = remain;
 
         uint8_t buf[len];
@@ -83,8 +83,6 @@ void EventSocket::OnWritable() {
         while (sentLen < len) {
           sentLen += sendto(fd, buf + sentLen, len - sentLen, remoteIpAddr_, remotePort_);
         }
-      } else {
-        len = -1;
       }
     }
     case SOCK_ESTABLISHED:
