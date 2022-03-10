@@ -3,15 +3,18 @@
 #include <wizchip_conf.h>
 #include <EventSocket.hpp>
 
-EventSocket::EventSocket(uint16_t port, qbuffer_t& sendBuffer, qbuffer_t& recvBuffer, SocketMode mode)
+EventSocket::EventSocket(uint16_t port, SocketMode mode)
     : fd(1),
       mode_(mode),
       port_(port),
       remotePort_(0),
       remoteIpAddr_({}),
-      sendBuffer_(sendBuffer),
-      recvBuffer_(recvBuffer),
-      isOpened_(false) {
+      isOpened_(false),
+      sendBuffer_({}),
+      recvBuffer_({}) {
+  qbufferCreate(&sendBuffer_, sharedSendBuffer_, sizeof(sharedSendBuffer_));
+  qbufferCreate(&recvBuffer_, sharedRecvBuffer_, sizeof(sharedRecvBuffer_));
+
   uint8_t protocol;
   uint8_t flag = SF_IO_NONBLOCK;
 
@@ -90,3 +93,7 @@ void EventSocket::OnWritable() {
       break;
   }
 }
+
+qbuffer_t* EventSocket::GetSendBuffer() { return &sendBuffer_; }
+
+qbuffer_t* EventSocket::GetRecvBuffer() { return &recvBuffer_; }

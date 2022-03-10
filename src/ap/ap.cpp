@@ -1,9 +1,6 @@
 #include "ap.h"
 #include "EthernetManager.hpp"
 
-static qbuffer_t ethSendRingBuffer, ethRecvRingBuffer;
-static uint8_t ethSharedSendBuffer[ETH_SHARED_BUFFER_SIZE], ethSharedRecvBuffer[ETH_SHARED_BUFFER_SIZE];
-
 static void apCore1();
 
 void apInit(void) {
@@ -26,6 +23,7 @@ void apInit(void) {
   lcdUpdateDraw();
 
   EthernetManager::InitInstance(MAC_ADDRESS, DHCP_ENABLED);
+  EthernetManager::GetInstance()->AddSocket(std::make_shared<EventSocket>(SOCKET_PORT_DEFAULT, SocketMode::UDP_PEER));
 
   multicore_launch_core1(apCore1);
 }
@@ -48,14 +46,20 @@ void apMain(void) {
     // TODO: Ethernet2CAN
     // Loopback test code
     {
-      uint32_t recvSize = qbufferAvailable(&ethRecvRingBuffer);
-      if (recvSize > 0) {
-        uint8_t recvBuffer[recvSize];
-        qbufferRead(&ethRecvRingBuffer, recvBuffer, recvSize);
-        // cliPrintf("recv %d bytes\r\n", recvSize);
+      auto socket = EthernetManager::GetInstance()->GetSocket();
+      if(socket) {
+        qbuffer_t* sendBufferPtr = socket->GetSendBuffer();
+        qbuffer_t* recvBufferPtr = socket->GetRecvBuffer();
 
-        if (qbufferWrite(&ethSendRingBuffer, recvBuffer, recvSize) == false) {
-          cliPrintf("send buffer full\r\n");
+        uint32_t recvSize = qbufferAvailable(recvBufferPtr);
+        if (recvSize > 0) {
+          uint8_t tempBuffer[recvSize];
+          qbufferRead(recvBufferPtr, tempBuffer, recvSize);
+          // cliPrintf("recv %d bytes\r\n", recvSize);
+
+          if (qbufferWrite(sendBufferPtr, tempBuffer, recvSize) == false) {
+            cliPrintf("send buffer full\r\n");
+          }
         }
       }
     }
@@ -66,12 +70,6 @@ void apMain(void) {
 
 static void apCore1() {
   uint32_t pre_time = 0;
-
-  qbufferCreate(&ethSendRingBuffer, ethSharedSendBuffer, sizeof(ethSharedSendBuffer));
-  qbufferCreate(&ethRecvRingBuffer, ethSharedRecvBuffer, sizeof(ethSharedRecvBuffer));
-
-  EthernetManager::GetInstance()->AddSocket(
-      std::make_shared<EventSocket>(SOCKET_PORT_DEFAULT, ethSendRingBuffer, ethRecvRingBuffer, SocketMode::UDP_PEER));
 
   while (1) {
     EthernetManager::GetInstance()->Run();

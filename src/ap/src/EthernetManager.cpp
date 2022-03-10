@@ -69,4 +69,6 @@ bool EthernetManager::AddSocket(std::shared_ptr<EventSocket> socket) {
   return true;
 }
 
+std::shared_ptr<EventSocket> EthernetManager::GetSocket() { return socket_; }
+
 std::array<uint8_t, 4> EthernetManager::GetIPAddress() const { return ip_address_; }

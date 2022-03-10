@@ -16,6 +16,7 @@ class EthernetManager {
   std::array<uint8_t, 4> GetIPAddress() const;
   // NOTE: It support only single socket creation currently
   bool AddSocket(std::shared_ptr<EventSocket> socket);
+  std::shared_ptr<EventSocket> GetSocket();
 
  private:
   static std::shared_ptr<EthernetManager> instance;
