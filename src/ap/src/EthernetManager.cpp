@@ -38,6 +38,8 @@ EthernetManager::EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEna
   wizchip_initialize();
   wizchip_check();
 
+  setSHAR((uint8_t *)MAC_ADDRESS_.data());
+
   if (dhcpEnabled_) {
     // 1s timer
     {
@@ -71,7 +73,6 @@ EthernetManager::EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEna
 
     DHCP_init(0, bufferToDHCP);
   } else {
-    setSHAR((uint8_t *)MAC_ADDRESS_.data());
     setSIPR((uint8_t *)STATIC_IP_ADDRESS.data());
     setSUBR((uint8_t *)STATIC_SUBNET_MASK.data());
     setGAR((uint8_t *)STATIC_GATEWAY_ADDRESS.data());
@@ -112,7 +113,6 @@ void EthernetManager::MaintainDHCP() {
         if (dhcpRetryCnt_ >= 5) {
           DHCP_stop();
           dhcpEnabled_ = false;
-          setSHAR((uint8_t *)MAC_ADDRESS_.data());
           setSIPR((uint8_t *)STATIC_IP_ADDRESS.data());
           setSUBR((uint8_t *)STATIC_SUBNET_MASK.data());
           setGAR((uint8_t *)STATIC_GATEWAY_ADDRESS.data());
