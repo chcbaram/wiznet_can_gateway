@@ -103,6 +103,7 @@ typedef struct
 
 void mcp2515csPinWrite(uint8_t ch, bool value);
 bool mcp2515Init(void);
+bool mcp2515IsInit(uint8_t ch);
 bool mcp2515Reset(uint8_t ch);
 bool mcp2515SetMode(uint8_t ch, McpMode mode);
 bool mcp2515SetBaud(uint8_t ch, McpBaud baud);

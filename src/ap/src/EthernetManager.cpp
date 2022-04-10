@@ -1,5 +1,4 @@
-#include <bsp.h>
-#include <cli.h>
+#include <ap_def.h>
 #include <dhcp.h>
 #include <socket.h>
 #include <w5x00_spi.h>
@@ -104,7 +103,8 @@ void EthernetManager::Run() {
 void EthernetManager::MaintainDHCP() {
   if (millis() - preTimeDHCP_ >= 1000) {
     uint8_t ret = DHCP_run();
-    cliPrintf("DHCP: %d\n", ret);
+    if (DHCP_LOG)
+      cliPrintf("DHCP: %d\n", ret);
 
     switch (ret) {
       case DHCP_RUNNING:
