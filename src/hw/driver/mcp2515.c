@@ -93,7 +93,7 @@ bool mcp2515Init(void)
   {
     mcp2515csPinWrite(ch, _DEF_HIGH);
 
-    is_init[ch] = mcp2515Reset(ch);
+    is_init[ch] = mcp2515Reset(ch);    
 
     if (is_init[ch] == true)
     {
@@ -137,15 +137,35 @@ bool mcp2515Init(void)
         mcp2515SetFilterMask(ch, i, true, 0);
       }
     }
+
+    if (mcp2515ReadReg(ch, MCP_CANINTE) == 0xA3)
+    {
+      is_init[ch] = true;
+      logPrintf("mcp2515 0 : OK\n");
+    }
+    else
+    {
+      is_init[ch] = false;
+      logPrintf("mcp2515 0 : Fail\n");
+    }
   }
 
   mcp2515SetMode(_DEF_CAN1, MCP_MODE_NORMAL);
   mcp2515SetBaud(_DEF_CAN1, MCP_BAUD_500K);
 
+
 #ifdef _USE_HW_CLI
   cliAdd("mcp2515", cliMCP2515);
 #endif
   return ret;
+}
+
+bool mcp2515IsInit(uint8_t ch)
+{
+  if ( ch >= HW_MCP2515_MAX_CH )
+    return false;
+
+  return is_init[ch];
 }
 
 bool mcp2515Reset(uint8_t ch)

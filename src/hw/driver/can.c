@@ -71,7 +71,7 @@ bool canInit(void)
 
   for(i = 0; i < CAN_MAX_CH; i++)
   {
-    can_tbl[i].is_init  = true;
+    can_tbl[i].is_init  = false;
     can_tbl[i].is_open  = false;
     can_tbl[i].err_code = CAN_ERR_NONE;
     can_tbl[i].state    = 0;
@@ -87,6 +87,11 @@ bool canInit(void)
 
   mcp2515Init();
 
+  for(i = 0; i < CAN_MAX_CH; i++)
+  {
+    can_tbl[i].is_init  = mcp2515IsInit(i);
+  }
+
 #ifdef _USE_HW_CLI
   cliAdd("can", cliCan);
 #endif
@@ -95,7 +100,7 @@ bool canInit(void)
 
 bool canOpen(uint8_t ch, can_mode_t mode, can_frame_t frame, can_baud_t baud, can_baud_t baud_data)
 {
-  bool ret = true;
+  bool ret = false;
 
   if (ch >= CAN_MAX_CH) return false;
 
@@ -111,7 +116,11 @@ bool canOpen(uint8_t ch, can_mode_t mode, can_frame_t frame, can_baud_t baud, ca
       can_tbl[ch].enable_int            = 0;
 
       mcp2515SetBaud(can_tbl[ch].hfdcan, (McpBaud)baud);
-      ret = true;
+
+      if (mcp2515IsInit(ch) == true)
+      {
+        ret = true;
+      }
       break;
   }
 
@@ -128,6 +137,11 @@ bool canOpen(uint8_t ch, can_mode_t mode, can_frame_t frame, can_baud_t baud, ca
   can_tbl[ch].is_open = true;
 
   return ret;
+}
+
+bool canIsOpen(uint8_t ch)
+{
+  return can_tbl[ch].is_open;
 }
 
 void canClose(uint8_t ch)
@@ -167,6 +181,28 @@ bool canMsgInit(can_msg_t *p_msg, can_frame_t frame, can_id_type_t  id_type, can
   p_msg->dlc     = dlc;
   p_msg->length  = dlc_len_tbl[dlc];
   return true;
+}
+
+uint8_t canGetLenToDlc(uint8_t length)
+{
+  uint32_t tbl_cnt;
+  uint8_t ret = 0;
+
+  if (length == 0) return 0;
+
+
+  tbl_cnt = sizeof(dlc_len_tbl) / sizeof(uint32_t);
+
+  for (int i=0; i<tbl_cnt; i++)
+  {
+    if (length <= dlc_len_tbl[i])
+    {
+      ret = i;
+      break;
+    }
+  }
+
+  return ret;
 }
 
 bool canMsgWrite(uint8_t ch, can_msg_t *p_msg, uint32_t timeout)
@@ -346,6 +382,8 @@ void canRxFifoUpdate(uint8_t ch)
   rx_buf->length = dlc_len_tbl[rx_msg.dlc];
   rx_buf->frame = CAN_CLASSIC;
 
+  memcpy(rx_buf->data, rx_msg.data, rx_buf->length);
+  
   if (qbufferWrite(&can_tbl[ch].q_msg, NULL, 1) != true)
   {
     can_tbl[ch].q_rx_full_cnt++;

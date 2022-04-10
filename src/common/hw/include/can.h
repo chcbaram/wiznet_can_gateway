@@ -104,6 +104,7 @@ typedef struct
 
 bool     canInit(void);
 bool     canOpen(uint8_t ch, can_mode_t mode, can_frame_t frame, can_baud_t baud, can_baud_t baud_data);
+bool     canIsOpen(uint8_t ch);
 void     canClose(uint8_t ch);
 bool     canConfigFilter(uint8_t ch, uint8_t index, can_id_type_t id_type, uint32_t id, uint32_t id_mask);
 
@@ -120,6 +121,7 @@ uint32_t canGetState(uint8_t ch);
 void     canErrClear(uint8_t ch);
 void     canErrPrint(uint8_t ch);
 bool     canUpdate(void);
+uint8_t  canGetLenToDlc(uint8_t length);
 
 void     canAttachRxInterrupt(uint8_t ch, bool (*handler)(can_msg_t *arg));
 void     canDetachRxInterrupt(uint8_t ch);
