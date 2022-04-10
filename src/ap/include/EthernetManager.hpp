@@ -1,6 +1,6 @@
 #include <array>
 #include <memory>
-
+#include <timer/timer.h>
 #include "EventSocket.hpp"
 
 class EthernetManager {
@@ -11,7 +11,8 @@ class EthernetManager {
   EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEnable);
 
   ~EthernetManager() = default;
-
+  
+  bool IsAssignedIP() const;
   void Run();
   std::array<uint8_t, 4> GetIPAddress() const;
   // NOTE: It support only single socket creation currently
@@ -28,9 +29,12 @@ class EthernetManager {
   const std::array<uint8_t, 6> MAC_ADDRESS_;
   std::array<uint8_t, 4> ip_address_;
 
+  bool isAssignedIP_;
+
   bool dhcpEnabled_;
-  const uint32_t DHCP_RETRY_TIMEOUT_MS;
   uint32_t preTimeDHCP_;
+  uint8_t dhcpRetryCnt_;
+  struct repeating_timer timerToDHCP_;
   void MaintainDHCP();
 
   std::shared_ptr<EventSocket> socket_;

@@ -41,13 +41,17 @@ void apMain(void) {
                       EthernetManager::GetInstance()->GetIPAddress()[2],
                       EthernetManager::GetInstance()->GetIPAddress()[3], pre_time);
       lcdUpdateDraw();
+
+      cliPrintf("IP %d.%d.%d.%d, %d\n", EthernetManager::GetInstance()->GetIPAddress()[0],
+                EthernetManager::GetInstance()->GetIPAddress()[1], EthernetManager::GetInstance()->GetIPAddress()[2],
+                EthernetManager::GetInstance()->GetIPAddress()[3], pre_time);
     }
 
     // TODO: Ethernet2CAN
-    // Loopback test code
-    {
+    // Loopback test codes
+    if (EthernetManager::GetInstance()->IsAssignedIP()) {
       auto socket = EthernetManager::GetInstance()->GetSocket();
-      if(socket) {
+      if (socket) {
         qbuffer_t* sendBufferPtr = socket->GetSendBuffer();
         qbuffer_t* recvBufferPtr = socket->GetRecvBuffer();
 
@@ -55,7 +59,7 @@ void apMain(void) {
         if (recvSize > 0) {
           uint8_t tempBuffer[recvSize];
           qbufferRead(recvBufferPtr, tempBuffer, recvSize);
-          // cliPrintf("recv %d bytes\r\n", recvSize);
+          cliPrintf("recv %d bytes\r\n", recvSize);
 
           if (qbufferWrite(sendBufferPtr, tempBuffer, recvSize) == false) {
             cliPrintf("send buffer full\r\n");
@@ -74,6 +78,7 @@ static void apCore1() {
   while (1) {
     EthernetManager::GetInstance()->Run();
     if (millis() - pre_time >= 500) {
+      cliPrintf("running EthernetManager\r\n");
       pre_time = millis();
     }
     delay(1);
