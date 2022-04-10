@@ -1,10 +1,15 @@
 #include <bsp.h>
+#include <cli.h>
 #include <dhcp.h>
 #include <socket.h>
 #include <w5x00_spi.h>
 #include <wizchip_conf.h>
 #include <EthernetManager.hpp>
 #include <cstring>
+
+static uint8_t bufferToDHCP[1024] = {
+    0,
+};
 
 std::shared_ptr<EthernetManager> EthernetManager::instance = nullptr;
 
@@ -18,7 +23,12 @@ std::shared_ptr<EthernetManager> EthernetManager::InitInstance(const std::array<
 std::shared_ptr<EthernetManager> EthernetManager::GetInstance() { return instance; }
 
 EthernetManager::EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEnable)
-    : MAC_ADDRESS_(mac), ip_address_({}), dhcpEnabled_(dhcpEnable), DHCP_RETRY_TIMEOUT_MS(5 * 1000), preTimeDHCP_(0) {
+    : MAC_ADDRESS_(mac),
+      ip_address_({}),
+      isAssignedIP_(false),
+      dhcpEnabled_(dhcpEnable),
+      preTimeDHCP_(0),
+      dhcpRetryCnt_(0) {
   stdio_init_all();
 
   wizchip_spi_initialize();
@@ -29,21 +39,57 @@ EthernetManager::EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEna
   wizchip_check();
 
   if (dhcpEnabled_) {
-    // DHCP_init(0, bufferToDHCP);
-    // reg_dhcp_cbfunc(ip_assign, ip_update, ip_conflict);
-    preTimeDHCP_ = millis();
+    // 1s timer
+    {
+      auto timerCb = [](struct repeating_timer *t) -> bool {
+        DHCP_time_handler();
+        return true;
+      };
+      add_repeating_timer_ms(-1000, timerCb, NULL, &timerToDHCP_);
+    }
+
+    // Register callbacks
+    {
+      auto ipAssignCb = [](void) {
+        wiz_NetInfo netInfo;
+        getIPfromDHCP(netInfo.ip);
+        getGWfromDHCP(netInfo.gw);
+        getSNfromDHCP(netInfo.sn);
+        getDNSfromDHCP(netInfo.dns);
+        netInfo.dhcp = NETINFO_DHCP;
+        network_initialize(netInfo);  // apply from DHCP
+      };
+      auto ipUpdateCb = ipAssignCb;
+      auto ipConflictCb = [](void) {
+        cliPrintf(" Conflict IP from DHCP\n");
+        // halt or reset or any...
+        while (1)
+          ;
+      };
+      reg_dhcp_cbfunc(ipAssignCb, ipUpdateCb, ipConflictCb);
+    }
+
+    DHCP_init(0, bufferToDHCP);
   } else {
     setSHAR((uint8_t *)MAC_ADDRESS_.data());
     setSIPR((uint8_t *)STATIC_IP_ADDRESS.data());
     setSUBR((uint8_t *)STATIC_SUBNET_MASK.data());
     setGAR((uint8_t *)STATIC_GATEWAY_ADDRESS.data());
     ip_address_ = STATIC_IP_ADDRESS;
+
+    isAssignedIP_ = true;
   }
 }
+
+bool EthernetManager::IsAssignedIP() const { return isAssignedIP_; };
 
 void EthernetManager::Run() {
   if (dhcpEnabled_) {
     MaintainDHCP();
+  }
+
+  if (isAssignedIP_ == false) {
+    return;
   }
 
   // TODO: check socket status
@@ -55,9 +101,42 @@ void EthernetManager::Run() {
 }
 
 void EthernetManager::MaintainDHCP() {
-  if (millis() - preTimeDHCP_ < DHCP_RETRY_TIMEOUT_MS) {
-    // get dhcp status
-    // if dhcp status == leased ? preTimeDHCP_ = millis();
+  if (millis() - preTimeDHCP_ >= 1000) {
+    uint8_t ret = DHCP_run();
+    cliPrintf("DHCP: %d\n", ret);
+
+    switch (ret) {
+      case DHCP_RUNNING:
+      case DHCP_FAILED:
+        dhcpRetryCnt_++;
+        if (dhcpRetryCnt_ >= 5) {
+          DHCP_stop();
+          dhcpEnabled_ = false;
+          setSHAR((uint8_t *)MAC_ADDRESS_.data());
+          setSIPR((uint8_t *)STATIC_IP_ADDRESS.data());
+          setSUBR((uint8_t *)STATIC_SUBNET_MASK.data());
+          setGAR((uint8_t *)STATIC_GATEWAY_ADDRESS.data());
+          ip_address_ = STATIC_IP_ADDRESS;
+          isAssignedIP_ = true;
+        }
+        break;
+
+      case DHCP_IP_LEASED:
+        if (isAssignedIP_ == false) {
+          dhcpRetryCnt_ = 0;
+          getIPfromDHCP(ip_address_.data());
+          isAssignedIP_ = true;
+        }
+        break;
+
+      case DHCP_IP_ASSIGN:
+      case DHCP_IP_CHANGED:
+      case DHCP_STOPPED:
+      default:
+        break;
+    };
+
+    preTimeDHCP_ = millis();  // MUST BE updated time after Wiznet DHCP_run()
   }
 }
 
