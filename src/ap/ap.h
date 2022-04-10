@@ -10,9 +10,6 @@
 
 #include "ap_def.h"
 
-#include "loopback_test.h"
-#include "dhcp_test.h"
-
 void apInit(void);
 void apMain(void);
 
