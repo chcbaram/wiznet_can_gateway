@@ -1,8 +1,8 @@
 #include <bsp.h>
+#include <cli.h>
 #include <socket.h>
 #include <wizchip_conf.h>
 #include <EventSocket.hpp>
-#include <cli.h>
 
 EventSocket::EventSocket(uint16_t port, SocketMode mode)
     : fd(1),
@@ -54,8 +54,6 @@ void EventSocket::OnReadable() {
 
         uint8_t buf[len];
         len = recvfrom(fd, buf, len, remoteIpAddr_, &remotePort_);
-        cliPrintf("recvfrom: %d.%d.%d.%d:%d\n", remoteIpAddr_[0], remoteIpAddr_[1], remoteIpAddr_[2], remoteIpAddr_[3],
-                  remotePort_);
         if (len) {
           qbufferWrite(&recvBuffer_, buf, len);
         }
