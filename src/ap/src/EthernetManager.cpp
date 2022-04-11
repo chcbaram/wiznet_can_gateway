@@ -62,7 +62,7 @@ EthernetManager::EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEna
       };
       auto ipUpdateCb = ipAssignCb;
       auto ipConflictCb = [](void) {
-        cliPrintf(" Conflict IP from DHCP\n");
+        AP_LOGGER_PRINT(" Conflict IP from DHCP\n");
         // halt or reset or any...
         while (1)
           ;
@@ -103,8 +103,6 @@ void EthernetManager::Run() {
 void EthernetManager::MaintainDHCP() {
   if (millis() - preTimeDHCP_ >= 1000) {
     uint8_t ret = DHCP_run();
-    if (DHCP_LOG)
-      cliPrintf("DHCP: %d\n", ret);
 
     switch (ret) {
       case DHCP_RUNNING:
