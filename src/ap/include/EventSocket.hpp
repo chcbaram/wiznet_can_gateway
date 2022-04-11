@@ -1,3 +1,6 @@
+#ifndef EVENT_SOCKET_H_
+#define EVENT_SOCKET_H_
+
 #include <qbuffer.h>
 #include <cstdbool>
 #include <cstdint>
@@ -19,8 +22,8 @@ class EventSocket {
   void OnReadable();
   void OnWritable();
 
-  qbuffer_t* GetSendBuffer(); // or Write() and AvailableWrite()
-  qbuffer_t* GetRecvBuffer(); // or Read() and Available()
+  qbuffer_t* GetSendBuffer();  // or Write() and AvailableWrite()
+  qbuffer_t* GetRecvBuffer();  // or Read() and Available()
 
  private:
   uint8_t fd;
@@ -34,3 +37,5 @@ class EventSocket {
   uint8_t sharedSendBuffer_[ETH_SHARED_BUFFER_SIZE];
   uint8_t sharedRecvBuffer_[ETH_SHARED_BUFFER_SIZE];
 };
+
+#endif /* EVENT_SOCKET_H_ */

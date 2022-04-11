@@ -1,6 +1,9 @@
+#ifndef ETHERNET_MANAGER_H_
+#define ETHERNET_MANAGER_H_
+
+#include <timer/timer.h>
 #include <array>
 #include <memory>
-#include <timer/timer.h>
 #include "EventSocket.hpp"
 
 class EthernetManager {
@@ -11,7 +14,7 @@ class EthernetManager {
   EthernetManager(const std::array<uint8_t, 6> &mac, bool dhcpEnable);
 
   ~EthernetManager() = default;
-  
+
   bool IsAssignedIP() const;
   void Run();
   std::array<uint8_t, 4> GetIPAddress() const;
@@ -39,3 +42,5 @@ class EthernetManager {
 
   std::shared_ptr<EventSocket> socket_;
 };
+
+#endif /* ETHERNET_MANAGER_H_ */
