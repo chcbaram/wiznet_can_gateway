@@ -7,6 +7,9 @@ static void apCore1();
 static void Ethernet2CAN(void);
 static void EthernetLoopBack(void);
 
+static bool is_connected = false;
+
+
 void apInit(void) {
   qbufferInit();
 
@@ -46,6 +49,11 @@ void apMain(void) {
                   EthernetManager::GetInstance()->GetIPAddress()[3]);
 
         lcdPrintf(0, 16, white, "%d  %d DHCP", (millis() / 1000) % 10, SOCKET_PORT_DEFAULT);
+
+        if (is_connected) {
+          lcdDrawFillRect(LCD_WIDTH-16, 16, 10, 16, white);
+          lcdPrintf(LCD_WIDTH-16, 16, black, "C");
+        }
       } else {
         lcdPrintfResize(0, 0, green, 16, "Getting IP..");
       }
@@ -98,8 +106,16 @@ void EthernetLoopBack(void) {
 
 void Ethernet2CAN(void) {
   static uint32_t heart_cnt = 0;
+  static uint32_t ping_pre_time = millis();
+
 
   canUpdate();
+
+  // Connection Check
+  //
+  if (millis()-ping_pre_time > 2000) {
+    is_connected = false;
+  }
 
   // CAN -> Ethernet
   //
@@ -130,6 +146,13 @@ void Ethernet2CAN(void) {
     }
     if (cmd_can.rx_packet.type == PKT_TYPE_PING) {
       AP_LOGGER_PRINT("Receive Type Ping\n");
+
+      ping_pre_time = millis();
+      is_connected = true;
+
+      uint8_t status = 0;
+      status = canGetError(_DEF_CAN1);
+      cmdCanSendType(&cmd_can, PKT_TYPE_PING, &status, 1);
     }
     if (cmd_can.rx_packet.type == PKT_TYPE_CAN) {
       can_msg_t can_msg;

@@ -293,7 +293,8 @@ uint32_t canGetError(uint8_t ch)
 {
   if(ch > CAN_MAX_CH) return 0;
 
-  return mcp2515ReadErrorFlags(can_tbl[ch].hfdcan);
+  //return mcp2515ReadErrorFlags(can_tbl[ch].hfdcan);
+  return can_tbl[ch].err_code;
 }
 
 uint32_t canGetState(uint8_t ch)
