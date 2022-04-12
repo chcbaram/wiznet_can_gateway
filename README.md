@@ -13,7 +13,12 @@ W5100S-EVB-Pico 보드를 이용하여 Ethernet to CAN 게이트웨이 기능을
 },
 ```
 
-## CMake Configure
+## CMake Configure (Windows)
+```
+cmake -S . -B build -G "MinGW Makefiles" -DPICO_BOARD=pico
+```
+
+## CMake Configure (Linux)
 ```
 cmake -S . -B build -G "Unix Makefiles" -DPICO_BOARD=pico
 ```
