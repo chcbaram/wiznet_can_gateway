@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2022-04-08T09:38:53Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.7.0"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "ECG_PCB v13"
+        },
+        "Owner": "chaeyoon kim <kcyoon689@knu.ac.kr>",
+        "Size": {
+            "X": 86,
+            "Y": 58
+        }
+    }
+}
