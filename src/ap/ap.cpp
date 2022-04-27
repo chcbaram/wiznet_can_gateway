@@ -8,9 +8,12 @@ static void Ethernet2CAN(void);
 static void EthernetLoopBack(void);
 
 static bool is_connected = false;
+static bool is_init = false;
 
 
 void apInit(void) {
+  uint8_t cnt_i = 0;
+
   qbufferInit();
 
   cliOpen(_DEF_UART1, 115200);
@@ -25,13 +28,28 @@ void apInit(void) {
   }
   delay(1000);
 
-  EthernetManager::InitInstance(MAC_ADDRESS, DHCP_ENABLED);
-  EthernetManager::GetInstance()->AddSocket(std::make_shared<EventSocket>(SOCKET_PORT_DEFAULT, SocketMode::UDP_PEER));
+
+  multicore_launch_core1(apCore1);  
+
+  while(is_init != true) {
+
+    ledToggle(_DEF_LED1);
+
+    lcdClearBuffer(black);
+    
+    if ((cnt_i%8)/2 == 0) lcdPrintfResize(6, 8, green, 16, "Connectting");    
+    if ((cnt_i%8)/2 == 1) lcdPrintfResize(6, 8, green, 16, "Connectting.");    
+    if ((cnt_i%8)/2 == 2) lcdPrintfResize(6, 8, green, 16, "Connectting..");    
+    if ((cnt_i%8)/2 == 3) lcdPrintfResize(6, 8, green, 16, "Connectting...");    
+    cnt_i++;
+    
+    lcdUpdateDraw();
+    delay(100);
+  }
+  lcdClear(black);
 
   cmdCanInit(&cmd_can, canDriverGetPtr());
   cmdCanOpen(&cmd_can);
-
-  multicore_launch_core1(apCore1);
 }
 
 void apMain(void) {
@@ -73,6 +91,11 @@ void apMain(void) {
 static void apCore1() {
   uint32_t pre_time = 0;
 
+  EthernetManager::InitInstance(MAC_ADDRESS, DHCP_ENABLED);
+  EthernetManager::GetInstance()->AddSocket(std::make_shared<EventSocket>(SOCKET_PORT_DEFAULT, SocketMode::UDP_PEER));
+
+  is_init = true;
+
   while (1) {
     EthernetManager::GetInstance()->Run();
     if (millis() - pre_time >= 500) {
@@ -104,12 +127,49 @@ void EthernetLoopBack(void) {
   }
 }
 
+enum {
+  LED_STATE_IDLE, 
+  LED_STATE_ON,
+  LED_STATE_OFF
+};
+
 void Ethernet2CAN(void) {
   static uint32_t heart_cnt = 0;
   static uint32_t ping_pre_time = millis();
-
+  static uint32_t led_pre_time[2];
+  static uint8_t led_cnt[2] = {0, };
+  static uint8_t led_state[2] = {0, };
 
   canUpdate();
+
+  // LED Update
+  //
+  for (int i=0; i<2; i++) {
+    switch(led_state[i]) {
+      case LED_STATE_IDLE:
+        if (led_cnt[i] > 0) {
+          led_pre_time[i] = millis();
+          led_state[i] = LED_STATE_ON;
+          ledOn(_DEF_LED2 + i);
+        }
+        break;
+      
+      case LED_STATE_ON:
+        if (millis()-led_pre_time[i] >= 50) {
+          led_pre_time[i] = millis();
+          led_state[i] = LED_STATE_OFF;
+          ledOff(_DEF_LED2 + i);
+        }
+        break;
+
+      case LED_STATE_OFF:
+        if (millis()-led_pre_time[i] >= 50) {
+          led_state[i] = LED_STATE_IDLE;
+          led_cnt[i] = 0;
+        }
+        break;
+    }
+  }
 
   // Connection Check
   //
@@ -122,15 +182,18 @@ void Ethernet2CAN(void) {
   if (canMsgAvailable(_DEF_CAN1)) {
     can_msg_t can_msg;
 
+    led_cnt[0]++;
     canMsgRead(_DEF_CAN1, &can_msg);
     AP_LOGGER_PRINT("%d %d %d\n", can_msg.dlc, can_msg.length, can_msg.data[1]);
     can_msg.dlc = canGetLenToDlc(can_msg.length);
-    cmdCanSendType(&cmd_can, PKT_TYPE_CAN, (uint8_t*)&can_msg, sizeof(can_msg));
+    cmdCanSendType(&cmd_can, PKT_TYPE_CAN, (uint8_t*)&can_msg, sizeof(can_msg));    
   }
 
   // Ethernet -> CAN
   //
-  if (cmdCanReceivePacket(&cmd_can) == true) {
+  if (cmdCanReceivePacket(&cmd_can) == true) {    
+
+    led_cnt[1]++;
     if (cmd_can.rx_packet.type == PKT_TYPE_CMD) {
       AP_LOGGER_PRINT("Receive Cmd : 0x%02X\n", cmd_can.rx_packet.cmd);
       switch (cmd_can.rx_packet.cmd) {
@@ -175,3 +238,4 @@ void Ethernet2CAN(void) {
     }
   }
 }
+
